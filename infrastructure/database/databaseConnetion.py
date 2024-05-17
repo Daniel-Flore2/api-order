@@ -1,26 +1,40 @@
+# infrastructure/database/databaseConnection.py
+
 import mysql.connector
+from mysql.connector import Error
 
 class DatabaseConnection:
-    def __init__(self, database_name='api_gateway', host='localhost', user='root', password=''):
+    def __init__(self, database, user, password, host='localhost'):
         self.host = host
+        self.database = database
         self.user = user
         self.password = password
-        self.database_name = database_name
         self.connection = None
-    
+
+    def connect(self):
+        if self.connection is None:
+            try:
+                self.connection = mysql.connector.connect(
+                    host=self.host,
+                    database=self.database,
+                    user=self.user,
+                    password=self.password
+                )
+                if self.connection.is_connected():
+                    print("Connected to MySQL database")
+            except Error as e:
+                print(f"Error while connecting to MySQL: {e}")
+
     def cursor(self):
         if self.connection is None:
             self.connect()
         return self.connection.cursor()
 
-    def connect(self):
-        try:
-            self.connection = mysql.connector.connect(
-                host=self.host,
-                user=self.user,
-                password=self.password,
-                database=self.database_name
-            )
-            print("Connected to MySQL database")
-        except mysql.connector.Error as err:
-            print(f"Error: {err}")
+    def commit(self):
+        if self.connection:
+            self.connection.commit()
+
+    def close(self):
+        if self.connection and self.connection.is_connected():
+            self.connection.close()
+            print("MySQL connection is closed")

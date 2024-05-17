@@ -9,11 +9,11 @@ class Order:
         return f"Order(id={self.id}, total={self.total}, date={self.date}, status={self.status})"
 
 class OrderProduct:
-    def __init__(self, order_id, product_id, price, quantity):
-        self.order_id = order_id
-        self.product_id = product_id
-        self.price = price
-        self.quantity = quantity
+    def __init__(self, orden_id, producto_id, precio, cantidad):
+        self.orden_id = orden_id
+        self.producto_id = producto_id
+        self.precio = precio
+        self.cantidad = cantidad
 
     def __repr__(self):
-        return f"OrderProduct(order_id={self.order_id}, product_id={self.product_id}, price={self.price}, quantity={self.quantity})"
+        return f"OrderProduct(orden_id={self.orden_id}, producto_id={self.producto_id}, precio={self.precio}, cantidad={self.cantidad})"

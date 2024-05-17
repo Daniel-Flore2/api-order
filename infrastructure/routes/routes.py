@@ -1,3 +1,5 @@
+# infrastructure/routes/routes.py
+
 from flask import Blueprint, jsonify, request
 from infrastructure.database.databaseConnetion import DatabaseConnection
 from infrastructure.repositories.sql_order_products_repository import SQLOrderProductsRepository
@@ -9,7 +11,8 @@ orders_bp = Blueprint('orders', __name__)
 order_products_bp = Blueprint('order_products', __name__)
 
 # Crear una instancia de DatabaseConnection para la conexión a la base de datos
-db_connection = DatabaseConnection(database_name='api_gateway', user='root', password='')
+db_connection = DatabaseConnection(database='api_gateway', user='root', password='')
+db_connection.connect()
 
 # Crear instancias de los repositorios utilizando la conexión a la base de datos
 orders_repository = SQLOrdersRepository(db_connection)
@@ -48,25 +51,33 @@ def list_orders():
     return jsonify([order.__dict__ for order in orders])
 
 # Rutas para productos de órdenes
-@order_products_bp.route('/order_products', methods=['POST'])
+@order_products_bp.route('/order-products', methods=['POST'])
 def create_order_product():
-    data = request.json
-    order_product = OrderProduct(data['order_id'], data['product_id'], data['price'], data['quantity'])
-    created_order_product = order_products_repository.create_order_product(order_product)
-    return jsonify(created_order_product.__dict__)
+    data = request.get_json()
+    orden_id = data.get('orden_id')
+    producto_id = data.get('producto_id')
+    precio = data.get('precio')
+    cantidad = data.get('cantidad')
 
-@order_products_bp.route('/order_products/<int:product_id>', methods=['DELETE'])
+    if not all([orden_id, producto_id, precio, cantidad]):
+        return jsonify({'error': 'Missing data'}), 400
+
+    created_order_product = order_products_repository.create_order_product(orden_id, producto_id, precio, cantidad)
+    return jsonify({'order_product_id': created_order_product}), 201
+
+@order_products_bp.route('/order-products/<int:product_id>', methods=['DELETE'])
 def delete_order_product_by_id(product_id):
-    order_products_repository.delete_order_product_by_id(product_id)
+    order_products_repository.delete_order_product(product_id)
     return jsonify({'message': 'Order product deleted'})
 
-@order_products_bp.route('/order_products/<int:order_id>', methods=['PUT'])
+@order_products_bp.route('/order-products/<int:order_id>', methods=['PUT'])
 def update_order_product_status(order_id):
     data = request.json
-    updated_order_product = order_products_repository.update_order_product_status(order_id, data['status'])
+    updated_order_product = order_products_repository.update_order_product(order_id, data['status'])
     return jsonify(updated_order_product.__dict__)
 
-@order_products_bp.route('/order_products', methods=['GET'])
+@order_products_bp.route('/order-products', methods=['GET'])
 def list_order_products():
     order_products = order_products_repository.list_order_products()
     return jsonify([order_product.__dict__ for order_product in order_products])
+
