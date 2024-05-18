@@ -2,7 +2,7 @@ from infrastructure.database.databaseConnetion import DatabaseConnection
 # infrastructure/repositories/sql_order_products_repository.py
 
 class SQLOrderProductsRepository:
-    def __init__(self, db_connection):
+    def _init_(self, db_connection):
         self.db_connection = db_connection
 
     def create_order_product(self, orden_id, producto_id, precio, cantidad):
@@ -36,24 +36,25 @@ class SQLOrderProductsRepository:
 
     def delete_order_product(self, id):
         cursor = self.db_connection.cursor()
-        query = "DELETE FROM ordenes_productos WHERE id = %s"
+        query = "DELETE FROM ordenes_productos WHERE producto_id = %s"
         cursor.execute(query, (id,))
         self.db_connection.commit()
         return {'message': 'Order product deleted successfully'}
 
+    #listar todos los productos de las ordenes
     def get_all_order_products(self):
         cursor = self.db_connection.cursor()
         query = "SELECT * FROM ordenes_productos"
         cursor.execute(query)
-        results = cursor.fetchall()
+        rows = cursor.fetchall()
         order_products = []
-        for result in results:
-            order_product = {
-                'id': result[0],
-                'orden_id': result[1],
-                'producto_id': result[2],
-                'precio': result[3],
-                'cantidad': result[4]
-            }
-            order_products.append(order_product)
+        for row in rows:
+            order_products.append({
+                'orden_id': row[0],
+                'producto_id': row[1],
+                'precio': row[2],
+                'cantidad': row[3]
+            })
+        
+
         return order_products
