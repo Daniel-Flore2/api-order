@@ -1,14 +1,7 @@
 # infrastructure/repositories/sql_orders_repository.py
-
-from infrastructure.database.databaseConnetion import DatabaseConnection
-from infrastructure.repositories.orders_repository import OrdersRepository
-from domain.models import Order
-# infrastructure/repositories/sql_orders_repository.py
-
 class SQLOrdersRepository:
-    def _init_(self, db_connection):
+    def __init__(self, db_connection):
         self.db_connection = db_connection
-
     
     def create_order(self, order):
         cursor = self.db_connection.cursor()
@@ -26,14 +19,12 @@ class SQLOrdersRepository:
             return {'id': row[0], 'total': row[1], 'date': row[2], 'status': row[3]}
         return None
 
-    # actualiza el status de la orden con el id proporcionado usando metodo PATCH desde la API 
     def update_order(self, order_id, status):
         cursor = self.db_connection.cursor()
         query = "UPDATE ordenes SET status = %s WHERE id = %s"
         cursor.execute(query, (status, order_id))
         self.db_connection.commit()
         return {'id': order_id, 'status': status}
-
 
     def delete_order(self, order_id):
         cursor = self.db_connection.cursor()

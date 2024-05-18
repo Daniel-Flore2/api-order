@@ -2,7 +2,7 @@ from infrastructure.database.databaseConnetion import DatabaseConnection
 # infrastructure/repositories/sql_order_products_repository.py
 
 class SQLOrderProductsRepository:
-    def _init_(self, db_connection):
+    def __init__(self, db_connection):
         self.db_connection = db_connection
 
     def create_order_product(self, orden_id, producto_id, precio, cantidad):
